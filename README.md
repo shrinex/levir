@@ -1,0 +1,1 @@
+Common part used across shrine front-end projects.
