@@ -5,12 +5,12 @@
  * Home: http://anyoptional.com
  */
 
-import 'package:rxdart/rxdart.dart';
 import 'package:levir/src/rest/client/auth/bearer_token.dart';
 import 'package:levir/src/rest/client/rest_client.dart';
 import 'package:levir/src/rest/http/http_request.dart';
 import 'package:levir/src/rest/srv/defaults.dart';
 import 'package:levir/src/rest/types.dart';
+import 'package:rxdart/rxdart.dart';
 
 /// A type that knows how to fetch Shrine data
 abstract class Service {
@@ -74,23 +74,26 @@ extension ReactiveX on Service {
     ResponseErrorHandler responseErrorHandler = defaultResponseErrorHandler,
   }) {
     final preparedRequest = requestHandler(request);
-    return Rx.defer(
-      () {
-        return Stream.fromFuture(() async {
-          try {
-            final response = await restClient.execute(preparedRequest);
-            if (responseErrorHandler.hasError(response)) {
-              return Future<Map<String, dynamic>>.error(
-                responseErrorHandler.handleError(preparedRequest, response),
-              );
+    return Rx.retry(
+      () => Rx.defer(
+        () {
+          return Stream.fromFuture(() async {
+            try {
+              final response = await restClient.execute(preparedRequest);
+              if (responseErrorHandler.hasError(response)) {
+                return Future<Map<String, dynamic>>.error(
+                  responseErrorHandler.handleError(preparedRequest, response),
+                );
+              }
+              return Future<Map<String, dynamic>>.value(response.body!);
+            } on Exception catch (ex) {
+              return Future<Map<String, dynamic>>.error(exceptionHandler(ex));
             }
-            return Future<Map<String, dynamic>>.value(response.body!);
-          } on Exception catch (ex) {
-            return Future<Map<String, dynamic>>.error(exceptionHandler(ex));
-          }
-        }());
-      },
-      reusable: true,
+          }());
+        },
+        reusable: true,
+      ),
+      3,
     );
   }
 }
