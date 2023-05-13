@@ -30,6 +30,9 @@ extension EnumByRawValue<T, E extends RawEnum<T>> on Iterable<E> {
     return null;
   }
 
+  /// Tests whether the enum value in this list contains [rawValue] or not
+  bool containsRawValue(T rawValue) => byRawValue(rawValue) != null;
+
   /// Finds the enum value in this list with [rawValue],
   /// or throws error if specified rawValue does not match
   E byRequiredRawValue(T rawValue) {
