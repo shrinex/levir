@@ -11,18 +11,23 @@ abstract class RestOptions {
   String get baseUrl;
 
   /// How long should we wait before receiving a reply
-  int get readTimeout;
+  Duration get sendTimeout;
+
+  /// How long should we wait before receiving reply completely
+  Duration get readTimeout;
 
   /// How long should we wait before connecting to server
-  int get connectTimeout;
+  Duration get connectTimeout;
 
   factory RestOptions({
     required String baseUrl,
-    int readTimeout = 5000,
-    int connectTimeout = 2000,
+    Duration sendTimeout = const Duration(seconds: 2),
+    Duration readTimeout = const Duration(seconds: 4),
+    Duration connectTimeout = const Duration(seconds: 2),
   }) =>
       _RestOptions(
         baseUrl,
+        sendTimeout,
         readTimeout,
         connectTimeout,
       );
@@ -37,6 +42,7 @@ abstract class RestOptions {
     }
     return other is RestOptions &&
         other.baseUrl == baseUrl &&
+        other.sendTimeout == sendTimeout &&
         other.readTimeout == readTimeout &&
         other.connectTimeout == connectTimeout;
   }
@@ -44,6 +50,7 @@ abstract class RestOptions {
   @override
   int get hashCode => Object.hash(
         baseUrl,
+        sendTimeout,
         readTimeout,
         connectTimeout,
       );
@@ -54,13 +61,17 @@ class _RestOptions with RestOptions {
   final String baseUrl;
 
   @override
-  final int readTimeout;
+  final Duration sendTimeout;
 
   @override
-  final int connectTimeout;
+  final Duration readTimeout;
+
+  @override
+  final Duration connectTimeout;
 
   const _RestOptions(
     this.baseUrl,
+    this.sendTimeout,
     this.readTimeout,
     this.connectTimeout,
   );

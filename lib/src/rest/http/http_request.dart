@@ -29,11 +29,14 @@ abstract class HttpRequest extends HttpOutputMessage {
   /// Optional base url, overrides [RestOptions.baseUrl] if present
   String? get baseUrl => null;
 
+  /// Optional read timeout, overrides [RestOptions.sendTimeout] if present
+  Duration? get sendTimeout => null;
+
   /// Optional read timeout, overrides [RestOptions.readTimeout] if present
-  int? get readTimeout => null;
+  Duration? get readTimeout => null;
 
   /// Optional connect timeout, overrides [RestOptions.connectTimeout] if present
-  int? get connectTimeout => null;
+  Duration? get connectTimeout => null;
 
   /// Query parameters
   Map<String, dynamic> get queryParams => {};
@@ -55,13 +58,16 @@ class ClientHttpRequest implements HttpRequest {
   final String? baseUrl;
 
   @override
-  final int? readTimeout;
+  final Duration? sendTimeout;
+
+  @override
+  final Duration? readTimeout;
 
   @override
   final HttpMethod method;
 
   @override
-  final int? connectTimeout;
+  final Duration? connectTimeout;
 
   @override
   final Map<String, dynamic> queryParams;
@@ -72,6 +78,7 @@ class ClientHttpRequest implements HttpRequest {
   const ClientHttpRequest({
     this.body,
     this.baseUrl,
+    this.sendTimeout,
     this.readTimeout,
     this.connectTimeout,
     required this.path,

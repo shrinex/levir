@@ -14,11 +14,12 @@ ErrorEnvelope defaultExceptionHandler(Exception ex) {
   if (ex is DioError) {
     switch (ex.type) {
       case DioErrorType.sendTimeout:
-      case DioErrorType.connectTimeout:
+      case DioErrorType.connectionError:
+      case DioErrorType.connectionTimeout:
         return ErrorEnvelope.network;
       case DioErrorType.receiveTimeout:
         return ErrorEnvelope.internal;
-      case DioErrorType.response:
+      case DioErrorType.badResponse:
         return ErrorEnvelope(
           code: ex.response?.statusCode ?? ErrorEnvelope.internal.code,
           message: ex.response?.statusMessage ?? ErrorEnvelope.internal.message,
@@ -26,10 +27,11 @@ ErrorEnvelope defaultExceptionHandler(Exception ex) {
       default:
         return ErrorEnvelope(
           code: ErrorEnvelope.internal.code,
-          message: ex.message,
+          message: ex.message ?? ErrorEnvelope.internal.message,
         );
     }
   }
+
   return ErrorEnvelope.internal;
 }
 
@@ -46,26 +48,11 @@ class _ResponseErrorHandler implements ResponseErrorHandler {
       return true;
     }
 
-    if (response.statusCode == null ||
-        response.statusCode! < 200 ||
-        response.statusCode! >= 300) {
-      return true;
-    }
-
     return false;
   }
 
   @override
   ErrorEnvelope handleError(HttpRequest request, HttpResponse response) {
-    if (response.statusCode == null ||
-        response.statusCode! < 200 ||
-        response.statusCode! >= 300) {
-      return ErrorEnvelope(
-        code: response.statusCode ?? ErrorEnvelope.internal.code,
-        message: response.statusMessage ?? ErrorEnvelope.internal.message,
-      );
-    }
-
     return ErrorEnvelope.internal;
   }
 }

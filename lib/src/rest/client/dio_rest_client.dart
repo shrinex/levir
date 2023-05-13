@@ -42,7 +42,10 @@ class DioRestClient implements RestClient {
       responseType: _restClient.options.responseType,
       contentType: _restClient.options.contentType,
       validateStatus: _restClient.options.validateStatus,
+      followRedirects: _restClient.options.followRedirects,
       baseUrl: request.baseUrl ?? _restClient.options.baseUrl,
+      persistentConnection: _restClient.options.persistentConnection,
+      sendTimeout: request.sendTimeout ?? _restClient.options.sendTimeout,
       receiveTimeout: request.readTimeout ?? _restClient.options.receiveTimeout,
       connectTimeout:
           request.connectTimeout ?? _restClient.options.connectTimeout,
@@ -64,11 +67,14 @@ class DioRestClient implements RestClient {
 
   static Dio _newDio(RestOptions restOptions) {
     var options = BaseOptions(
+      followRedirects: false,
+      persistentConnection: true,
       baseUrl: restOptions.baseUrl,
       responseType: ResponseType.json,
       validateStatus: (status) => true,
       receiveDataWhenStatusError: true,
       contentType: Headers.jsonContentType,
+      sendTimeout: restOptions.sendTimeout,
       receiveTimeout: restOptions.readTimeout,
       connectTimeout: restOptions.connectTimeout,
     );

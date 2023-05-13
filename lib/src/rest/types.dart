@@ -45,4 +45,7 @@ class ErrorEnvelope {
     required this.code,
     required this.message,
   });
+
+  @override
+  String toString() => message;
 }
