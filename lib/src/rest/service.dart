@@ -74,26 +74,23 @@ extension ReactiveX on Service {
     ResponseErrorHandler responseErrorHandler = defaultResponseErrorHandler,
   }) {
     final preparedRequest = requestHandler(request);
-    return Rx.retry(
-      () => Rx.defer(
-        () {
-          return Stream.fromFuture(() async {
-            try {
-              final response = await restClient.execute(preparedRequest);
-              if (responseErrorHandler.hasError(response)) {
-                return Future<Map<String, dynamic>>.error(
-                  responseErrorHandler.handleError(preparedRequest, response),
-                );
-              }
-              return Future<Map<String, dynamic>>.value(response.body!);
-            } on Exception catch (ex) {
-              return Future<Map<String, dynamic>>.error(exceptionHandler(ex));
+    return Rx.defer(
+      () {
+        return Stream.fromFuture(() async {
+          try {
+            final response = await restClient.execute(preparedRequest);
+            if (responseErrorHandler.hasError(response)) {
+              return Future<Map<String, dynamic>>.error(
+                responseErrorHandler.handleError(preparedRequest, response),
+              );
             }
-          }());
-        },
-        reusable: true,
-      ),
-      3,
+            return Future<Map<String, dynamic>>.value(response.body!);
+          } on Exception catch (ex) {
+            return Future<Map<String, dynamic>>.error(exceptionHandler(ex));
+          }
+        }());
+      },
+      reusable: true,
     );
   }
 }
