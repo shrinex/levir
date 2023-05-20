@@ -39,7 +39,7 @@ abstract class HttpRequest extends HttpOutputMessage {
   Duration? get connectTimeout => null;
 
   /// Query parameters
-  Map<String, dynamic> get queryParams => {};
+  Map<String, dynamic>? get queryParams => {};
 
   /// This constructor enables subclasses to provide
   /// const constructors so that they can be used in const expressions
@@ -70,20 +70,44 @@ class ClientHttpRequest implements HttpRequest {
   final Duration? connectTimeout;
 
   @override
-  final Map<String, dynamic> queryParams;
+  final Map<String, dynamic>? headers;
 
   @override
-  final Map<String, List<String>> headers;
+  final Map<String, dynamic>? queryParams;
 
   const ClientHttpRequest({
     this.body,
     this.baseUrl,
+    this.headers,
+    this.queryParams,
     this.sendTimeout,
     this.readTimeout,
     this.connectTimeout,
     required this.path,
     required this.method,
-    this.headers = const {},
-    this.queryParams = const {},
   });
+
+  ClientHttpRequest copyWith({
+    String? path,
+    dynamic body,
+    String? baseUrl,
+    HttpMethod? method,
+    Duration? sendTimeout,
+    Duration? readTimeout,
+    Duration? connectTimeout,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? queryParams,
+  }) {
+    return ClientHttpRequest(
+      path: path ?? this.path,
+      body: body ?? this.body,
+      method: method ?? this.method,
+      baseUrl: baseUrl ?? this.baseUrl,
+      headers: headers ?? this.headers,
+      queryParams: queryParams ?? this.queryParams,
+      sendTimeout: sendTimeout ?? this.sendTimeout,
+      readTimeout: readTimeout ?? this.readTimeout,
+      connectTimeout: connectTimeout ?? this.connectTimeout,
+    );
+  }
 }

@@ -8,7 +8,7 @@
 /// Defines common part for client HTTP request & response
 abstract class HttpMessage {
   /// HTTP headers
-  Map<String, List<String>> get headers => {};
+  Map<String, dynamic>? get headers => {};
 
   /// This constructor enables subclasses to provide
   /// const constructors so that they can be used in const expressions

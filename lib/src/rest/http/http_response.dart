@@ -46,7 +46,7 @@ class _HttpResponse implements HttpResponse {
   String? get statusMessage => response.statusMessage;
 
   @override
-  Map<String, List<String>> get headers => response.headers.map;
+  Map<String, dynamic>? get headers => response.headers.map;
 }
 
 extension HttpResponseConvertible on Response {

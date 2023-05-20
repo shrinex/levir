@@ -73,8 +73,7 @@ extension ReactiveX on Service {
     ExceptionHandler exceptionHandler = defaultExceptionHandler,
     ResponseErrorHandler responseErrorHandler = defaultResponseErrorHandler,
   }) {
-    final preparedRequest = requestHandler(request);
-    _applyDefaultHeaders(request);
+    final preparedRequest = _applyDefaultHeaders(requestHandler(request));
     return Rx.defer(
       () {
         return Stream.fromFuture(() async {
@@ -95,13 +94,38 @@ extension ReactiveX on Service {
     );
   }
 
-  void _applyDefaultHeaders(HttpRequest request) {
-    final token = bearerToken?.rawValue ?? "";
-    if (token.isEmpty || request.headers.containsKey("Authorization")) {
-      return;
+  HttpRequest _applyDefaultHeaders(HttpRequest request) {
+    final token = bearerToken?.rawValue;
+    if (token == null) {
+      return request;
     }
 
-    request.headers["Authorization"] = ["Bearer $token"];
+    var headers = request.headers;
+    if (headers?.containsKey("Authorization") ?? false) {
+      return request;
+    }
+
+    // in case of unmodifiable map
+    headers = Map.of(headers ?? {});
+    headers["Authorization"] = "Bearer $token";
+
+    if (request is ClientHttpRequest) {
+      return request.copyWith(
+        headers: headers,
+      );
+    }
+
+    return ClientHttpRequest(
+      headers: headers,
+      path: request.path,
+      body: request.body,
+      method: request.method,
+      baseUrl: request.baseUrl,
+      queryParams: request.queryParams,
+      sendTimeout: request.sendTimeout,
+      readTimeout: request.readTimeout,
+      connectTimeout: request.connectTimeout,
+    );
   }
 }
 
