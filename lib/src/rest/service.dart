@@ -74,6 +74,7 @@ extension ReactiveX on Service {
     ResponseErrorHandler responseErrorHandler = defaultResponseErrorHandler,
   }) {
     final preparedRequest = requestHandler(request);
+    _applyDefaultHeaders(request);
     return Rx.defer(
       () {
         return Stream.fromFuture(() async {
@@ -92,6 +93,15 @@ extension ReactiveX on Service {
       },
       reusable: true,
     );
+  }
+
+  void _applyDefaultHeaders(HttpRequest request) {
+    final token = bearerToken?.rawValue ?? "";
+    if (token.isEmpty || request.headers.containsKey("Authorization")) {
+      return;
+    }
+
+    request.headers["Authorization"] = ["Bearer $token"];
   }
 }
 
